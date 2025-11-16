@@ -366,7 +366,7 @@ construction_phases = [
 with st.sidebar:
     
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.image(r"C:\Users\Tareq El-Houby\Desktop\pgweb\3.jpg", width=150)
+    st.image(r"3.jpg", width=150)
     st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown('<h2 style="text-align: center; color: #2E86AB; margin-bottom: 0;">بريجو</h2>', unsafe_allow_html=True)
@@ -783,4 +783,5 @@ st.markdown("""
         <p>جميع الحقوق محفوظة © 2023 بريجو | تصميم وتطوير: فريق بريجو</p>
     </div>
 </div>
+
 """, unsafe_allow_html=True)
