@@ -730,9 +730,9 @@ elif page == "📞 اتصل بنا":
             <p>نحن هنا لمساعدتك في تحقيق مشروعك الإنشائي. تواصل معنا اليوم للحصول على استشارة مجانية.</p>
             
             <div style="margin-top: 2rem;">
-                <p>📞 <strong>الهاتف:</strong> 0123456789</p>
-                <p>📧 <strong>البريد الإلكتروني:</strong> info@brigo.com</p>
-                <p>📍 <strong>العنوان:</strong> المدينة، المنطقة</p>
+                <p>📞 <strong>الهاتف:</strong>01220851965</p>
+                <p>📧 <strong>البريد الإلكتروني:</strong> info@brigoeg.com</p>
+                <p>📍 <strong>العنوان:</strong> السادس من اكتوبر - 265 مول اجياد بجوار سيتى سكيب </p>
             </div>
             
             <div style="margin-top: 2rem;">
@@ -785,3 +785,4 @@ st.markdown("""
 </div>
 
 """, unsafe_allow_html=True)
+
