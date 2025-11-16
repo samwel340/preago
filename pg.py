@@ -381,8 +381,9 @@ with st.sidebar:
     st.markdown("---")
     
     st.markdown("### 📞 للاستفسارات السريعة")
-    st.markdown("**📞 الهاتف:** 0123456789")
-    st.markdown("**📧 البريد:** info@brigo.com")
+    st.markdown("**📞 الهاتف:** 01220851965")
+    st.markdown("**📧 البريد:** info@brigoeg.com")
+    st.markdown("**العنوان:** السادس من اكتوبر - 264 مول اجياد بجوار سيتى سكيب ")
     
     # نموذج طلب استشارة سريع
     st.markdown("---")
@@ -785,4 +786,5 @@ st.markdown("""
 </div>
 
 """, unsafe_allow_html=True)
+
 
