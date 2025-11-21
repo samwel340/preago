@@ -383,7 +383,7 @@ with st.sidebar:
     st.markdown("### 📞 للاستفسارات السريعة")
     st.markdown("**📞 الهاتف:** 01220851965")
     st.markdown("**📧 البريد:** info@brigoeg.com")
-    st.markdown("**العنوان:** السادس من اكتوبر - 264 مول اجياد بجوار سيتى سكيب ")
+    st.markdown("**العنوان:** السادس من اكتوبر 165 مول اجياد بجوار سيتى سكيب ")
     
     # نموذج طلب استشارة سريع
     st.markdown("---")
@@ -733,7 +733,7 @@ elif page == "📞 اتصل بنا":
             <div style="margin-top: 2rem;">
                 <p>📞 <strong>الهاتف:</strong>01220851965</p>
                 <p>📧 <strong>البريد الإلكتروني:</strong> info@brigoeg.com</p>
-                <p>📍 <strong>العنوان:</strong> السادس من اكتوبر - 265 مول اجياد بجوار سيتى سكيب </p>
+                <p>📍 <strong>العنوان:</strong> السادس من اكتوبر - 165 مول اجياد بجوار سيتى سكيب </p>
             </div>
             
             <div style="margin-top: 2rem;">
@@ -786,5 +786,6 @@ st.markdown("""
 </div>
 
 """, unsafe_allow_html=True)
+
 
 
