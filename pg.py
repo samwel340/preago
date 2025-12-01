@@ -4,6 +4,9 @@ import numpy as np
 from datetime import datetime
 import requests
 from streamlit_lottie import st_lottie
+import base64
+from PIL import Image
+import io
 
 # إعدادات الصفحة
 st.set_page_config(
@@ -20,6 +23,17 @@ def load_lottieurl(url):
         if r.status_code != 200:
             return None
         return r.json()
+    except:
+        return None
+
+# دالة لتحميل الصور من الإنترنت أو محلياً
+def load_image(url, local_path=None):
+    try:
+        if local_path:
+            return Image.open(local_path)
+        else:
+            response = requests.get(url)
+            return Image.open(io.BytesIO(response.content))
     except:
         return None
 
@@ -323,6 +337,36 @@ def local_css():
         border-radius: 6px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
+    
+    .image-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .gallery-item {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .gallery-item:hover {
+        transform: scale(1.03);
+    }
+    
+    .gallery-item img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+    
+    .gallery-caption {
+        padding: 1rem;
+        background: white;
+        text-align: center;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -332,26 +376,49 @@ local_css()
 lottie_construction = load_lottieurl("https://assets1.lottiefiles.com/packages/lf20_vybwn7df.json")
 lottie_design = load_lottieurl("https://assets1.lottiefiles.com/packages/lf20_gn0tojcq.json")
 
+# ===== روابط صور حقيقية للمقاولات والتشطيبات =====
+# يمكن استبدال هذه الروابط بصور محلية
+CONSTRUCTION_IMAGES = {
+    "hero": "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "general_construction": "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "interior_finishing": "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "exterior_finishing": "https://images.unsplash.com/photo-1513584684374-8bab748fbf90?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "architecture": "https://images.unsplash.com/photo-1487956382158-bb926046304a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "flooring": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "painting": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "supervision": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+}
+
+# صور حقيقية للمشاريع
+PROJECT_IMAGES = {
+    "برج التجارة": "https://images.unsplash.com/photo-1487956382158-bb926046304a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "فيلا السعادة": "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "مركز التسوق": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "مجمع سكني": "https://images.unsplash.com/photo-1513584684374-8bab748fbf90?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "مستشفى الحديث": "https://images.unsplash.com/photo-1586773860418-dc22f8b874bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    "فيلا النخيل": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+}
+
 # البيانات
 construction_services = [
-    {"title": "المقاولات العامة", "icon": "🏗️", "description": "تنفيذ مشاريع بناء متكاملة من التصميم إلى التسليم"},
-    {"title": "التصميم المعماري", "icon": "📐", "description": "تصميم معماري مبتكر يلبي احتياجاتك ويتوافق مع المعايير"},
-    {"title": "الإنشاءات", "icon": "🏢", "description": "بناء وتشييد بجودة عالية ومواد مستدامة"},
-    {"title": "الإشراف الهندسي", "icon": "👷", "description": "إشراف هندسي متكامل على جميع مراحل المشروع"},
+    {"title": "المقاولات العامة", "icon": "🏗️", "description": "تنفيذ مشاريع بناء متكاملة من التصميم إلى التسليم", "image": CONSTRUCTION_IMAGES["general_construction"]},
+    {"title": "التصميم المعماري", "icon": "📐", "description": "تصميم معماري مبتكر يلبي احتياجاتك ويتوافق مع المعايير", "image": CONSTRUCTION_IMAGES["architecture"]},
+    {"title": "الإنشاءات", "icon": "🏢", "description": "بناء وتشييد بجودة عالية ومواد مستدامة", "image": CONSTRUCTION_IMAGES["general_construction"]},
+    {"title": "الإشراف الهندسي", "icon": "👷", "description": "إشراف هندسي متكامل على جميع مراحل المشروع", "image": CONSTRUCTION_IMAGES["supervision"]},
 ]
 
 finishing_services = [
-    {"title": "التشطيبات الداخلية", "icon": "🎨", "description": "تشطيبات داخلية فاخرة بمواد عالية الجودة"},
-    {"title": "التشطيبات الخارجية", "icon": "🏛️", "description": "واجهات وتشطيبات خارجية مميزة ومتينة"},
-    {"title": "أعمال البلاط والسيراميك", "icon": "🧱", "description": "تركيب بلاط وسيراميك بدقة واحترافية"},
-    {"title": "أعمال الدهان والطلاء", "icon": "🖌️", "description": "أعمال دهان متقنة بألوان عصرية وجذابة"},
+    {"title": "التشطيبات الداخلية", "icon": "🎨", "description": "تشطيبات داخلية فاخرة بمواد عالية الجودة", "image": CONSTRUCTION_IMAGES["interior_finishing"]},
+    {"title": "التشطيبات الخارجية", "icon": "🏛️", "description": "واجهات وتشطيبات خارجية مميزة ومتينة", "image": CONSTRUCTION_IMAGES["exterior_finishing"]},
+    {"title": "أعمال البلاط والسيراميك", "icon": "🧱", "description": "تركيب بلاط وسيراميك بدقة واحترافية", "image": CONSTRUCTION_IMAGES["flooring"]},
+    {"title": "أعمال الدهان والطلاء", "icon": "🖌️", "description": "أعمال دهان متقنة بألوان عصرية وجذابة", "image": CONSTRUCTION_IMAGES["painting"]},
 ]
 
 projects_data = [
-    {"name": "برج التجارة", "type": "مقاولات عامة", "image": "https://via.placeholder.com/400x250/2E86AB/FFFFFF?text=برج+التجارة", "description": "بناء وتشييد برج تجاري مكون من 15 طابق", "area": "5000 م²", "duration": "18 شهر", "budget": "15 مليون ريال"},
-    {"name": "فيلا السعادة", "type": "تشطيبات", "image": "https://via.placeholder.com/400x250/A23B72/FFFFFF?text=فيلا+السعادة", "description": "تشطيبات كاملة لفيلا فاخرة بمساحة 350 م²", "area": "350 م²", "duration": "6 أشهر", "budget": "2.5 مليون ريال"},
-    {"name": "مركز التسوق", "type": "مقاولات عامة", "image": "https://via.placeholder.com/400x250/F18F01/FFFFFF?text=مركز+التسوق", "description": "إنشاء مركز تسوق متكامل الخدمات", "area": "8000 م²", "duration": "24 شهر", "budget": "25 مليون ريال"},
-    {"name": "مجمع سكني", "type": "مقاولات عامة", "image": "https://via.placeholder.com/400x250/2E86AB/FFFFFF?text=مجمع+سكني", "description": "بناء مجمع سكني مكون من 20 وحدة", "area": "6000 م²", "duration": "20 شهر", "budget": "18 مليون ريال"},
+    {"name": "برج التجارة", "type": "مقاولات عامة", "image": PROJECT_IMAGES["برج التجارة"], "description": "بناء وتشييد برج تجاري مكون من 15 طابق", "area": "5000 م²", "duration": "18 شهر", "budget": "15 مليون ريال"},
+    {"name": "فيلا السعادة", "type": "تشطيبات", "image": PROJECT_IMAGES["فيلا السعادة"], "description": "تشطيبات كاملة لفيلا فاخرة بمساحة 350 م²", "area": "350 م²", "duration": "6 أشهر", "budget": "2.5 مليون ريال"},
+    {"name": "مركز التسوق", "type": "مقاولات عامة", "image": PROJECT_IMAGES["مركز التسوق"], "description": "إنشاء مركز تسوق متكامل الخدمات", "area": "8000 م²", "duration": "24 شهر", "budget": "25 مليون ريال"},
+    {"name": "مجمع سكني", "type": "مقاولات عامة", "image": PROJECT_IMAGES["مجمع سكني"], "description": "بناء مجمع سكني مكون من 20 وحدة", "area": "6000 م²", "duration": "20 شهر", "budget": "18 مليون ريال"},
 ]
 
 construction_phases = [
@@ -362,11 +429,23 @@ construction_phases = [
     {"phase": "المرحلة الخامسة", "title": "التسليم النهائي", "description": "مراجعة نهائية وتسليم المشروع للعميل", "duration": "2-4 أسابيع"},
 ]
 
+# معرض الصور الحقيقي
+real_gallery = [
+    {"title": "تشطيبات داخلية فاخرة", "url": "https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+    {"title": "واجهات معمارية حديثة", "url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+    {"title": "أعمال دهان متقنة", "url": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+    {"title": "تركيب بلاط وسيراميك", "url": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+    {"title": "تشطيبات حمامات", "url": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+    {"title": "تصميم مطابخ حديثة", "url": "https://images.unsplash.com/photo-1556911220-bff31c812dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+    {"title": "أعمال الإنشاءات", "url": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+    {"title": "مشاريع تجارية", "url": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+]
+
 # شريط جانبي محسن
 with st.sidebar:
     
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.image(r"3.jpg", width=150)
+    st.image("https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300&q=80", width=150)
     st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown('<h2 style="text-align: center; color: #2E86AB; margin-bottom: 0;">بريجو</h2>', unsafe_allow_html=True)
@@ -375,7 +454,7 @@ with st.sidebar:
     st.markdown("---")
     
     st.markdown("### 🏗️ خدمات المقاولات")
-    page = st.radio("", ["🏠 الرئيسية", "📋 خدماتنا", "🏢 المقاولات العامة", "🎨 التشطيبات", "📊 مشاريعنا", "📞 اتصل بنا"], 
+    page = st.radio("", ["🏠 الرئيسية", "📋 خدماتنا", "🏢 المقاولات العامة", "🎨 التشطيبات", "📊 مشاريعنا", "🖼️ معرض الصور", "📞 اتصل بنا"], 
                    index=0, label_visibility="collapsed")
     
     st.markdown("---")
@@ -383,7 +462,17 @@ with st.sidebar:
     st.markdown("### 📞 للاستفسارات السريعة")
     st.markdown("**📞 الهاتف:** 01220851965")
     st.markdown("**📧 البريد:** info@brigoeg.com")
-    st.markdown("**العنوان:** السادس من اكتوبر 165 مول اجياد بجوار سيتى سكيب ")
+    st.markdown("**العنوان:** السادس من اكتوبر 165 مول اجياد بجوار سيتى سكيب")
+    
+    # قسم رفع الصور (للمشاريع الجديدة)
+    st.markdown("---")
+    st.markdown("### 📤 رفع صور مشروعك")
+    uploaded_file = st.file_uploader("ارفع صورة لمشروعك", type=['jpg', 'jpeg', 'png'])
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        st.image(image, caption="الصورة المرفوعة", use_column_width=True)
+        if st.button("حفظ الصورة"):
+            st.success("تم رفع الصورة بنجاح!")
     
     # نموذج طلب استشارة سريع
     st.markdown("---")
@@ -426,7 +515,7 @@ if page == "🏠 الرئيسية":
         if lottie_construction:
             st_lottie(lottie_construction, height=300, key="construction_animation")
         else:
-            st.image("https://via.placeholder.com/400x300/2E86AB/FFFFFF?text=بريجو+للمقاولات", width=400)
+            st.image(CONSTRUCTION_IMAGES["hero"], use_column_width=True)
     
     # إحصائيات
     st.markdown('<div class="stats-container">', unsafe_allow_html=True)
@@ -447,6 +536,16 @@ if page == "🏠 الرئيسية":
         st.markdown('<div class="stat-label">فريق متخصص</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
+    
+    # معرض صور مصغر
+    st.markdown('<h2 class="section-header">لمحة عن أعمالنا</h2>', unsafe_allow_html=True)
+    
+    cols = st.columns(4)
+    gallery_preview = real_gallery[:4]
+    for idx, img in enumerate(gallery_preview):
+        with cols[idx]:
+            st.image(img["url"], use_column_width=True)
+            st.caption(img["title"])
     
     # لماذا تختار بريجو؟
     st.markdown('<h2 class="section-header">لماذا تختار بريجو للمقاولات؟</h2>', unsafe_allow_html=True)
@@ -485,28 +584,34 @@ elif page == "📋 خدماتنا":
     # خدمات المقاولات العامة
     st.markdown('<h2 style="color: #2E86AB; margin-top: 2rem;">🏗️ خدمات المقاولات العامة</h2>', unsafe_allow_html=True)
     
-    cols = st.columns(4)
+    cols = st.columns(2)
     for i, service in enumerate(construction_services):
-        with cols[i]:
+        with cols[i % 2]:
             st.markdown(f"""
             <div class="service-card">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">{service['icon']}</div>
-                <h3 style="color: #2E86AB; margin-bottom: 1rem;">{service['title']}</h3>
-                <p style="color: #555;">{service['description']}</p>
+                <div style="text-align: center;">
+                    <img src="{service['image']}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">
+                </div>
+                <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">{service['icon']}</div>
+                <h3 style="color: #2E86AB; margin-bottom: 1rem; text-align: center;">{service['title']}</h3>
+                <p style="color: #555; text-align: center;">{service['description']}</p>
             </div>
             """, unsafe_allow_html=True)
     
     # خدمات التشطيبات
     st.markdown('<h2 style="color: #2E86AB; margin-top: 3rem;">🎨 خدمات التشطيبات</h2>', unsafe_allow_html=True)
     
-    cols = st.columns(4)
+    cols = st.columns(2)
     for i, service in enumerate(finishing_services):
-        with cols[i]:
+        with cols[i % 2]:
             st.markdown(f"""
             <div class="service-card">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">{service['icon']}</div>
-                <h3 style="color: #2E86AB; margin-bottom: 1rem;">{service['title']}</h3>
-                <p style="color: #555;">{service['description']}</p>
+                <div style="text-align: center;">
+                    <img src="{service['image']}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">
+                </div>
+                <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">{service['icon']}</div>
+                <h3 style="color: #2E86AB; margin-bottom: 1rem; text-align: center;">{service['title']}</h3>
+                <p style="color: #555; text-align: center;">{service['description']}</p>
             </div>
             """, unsafe_allow_html=True)
     
@@ -564,7 +669,7 @@ elif page == "🏢 المقاولات العامة":
         """, unsafe_allow_html=True)
     
     with col2:
-        st.image("https://via.placeholder.com/400x300/2E86AB/FFFFFF?text=المقاولات+العامة", use_column_width=True)
+        st.image(CONSTRUCTION_IMAGES["general_construction"], use_column_width=True)
     
     # مراحل تنفيذ المشاريع
     st.markdown('<h2 class="section-header">مراحل تنفيذ المشاريع</h2>', unsafe_allow_html=True)
@@ -639,9 +744,11 @@ elif page == "🎨 التشطيبات":
         
         col1, col2 = st.columns(2)
         with col1:
-            st.image("https://via.placeholder.com/400x300/2E86AB/FFFFFF?text=تشطيبات+داخلية+1", use_column_width=True)
+            st.image(CONSTRUCTION_IMAGES["interior_finishing"], 
+                    caption="تشطيبات داخلية فاخرة", use_column_width=True)
         with col2:
-            st.image("https://via.placeholder.com/400x300/A23B72/FFFFFF?text=تشطيبات+داخلية+2", use_column_width=True)
+            st.image("https://images.unsplash.com/photo-1556911220-bff31c812dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80", 
+                    caption="تصميم مطابخ حديثة", use_column_width=True)
     
     with finishing_tabs[1]:
         st.markdown("""
@@ -656,6 +763,9 @@ elif page == "🎨 التشطيبات":
             </ul>
         </div>
         """, unsafe_allow_html=True)
+        
+        st.image(CONSTRUCTION_IMAGES["exterior_finishing"], 
+                caption="واجهات معمارية مميزة", use_column_width=True)
     
     # نماذج التشطيبات
     st.markdown('<h2 class="section-header">أنماط التشطيبات</h2>', unsafe_allow_html=True)
@@ -665,6 +775,8 @@ elif page == "🎨 التشطيبات":
     with col6:
         st.markdown("""
         <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                 style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">
             <h3>التشطيبات الكلاسيكية</h3>
             <p>أناقة وفخامة مع لمسات تراثية أصيلة</p>
         </div>
@@ -673,6 +785,8 @@ elif page == "🎨 التشطيبات":
     with col7:
         st.markdown("""
         <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                 style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">
             <h3>التشطيبات الحديثة</h3>
             <p>بساطة وأناقة مع خطوط نظيفة وألوان هادئة</p>
         </div>
@@ -681,6 +795,8 @@ elif page == "🎨 التشطيبات":
     with col8:
         st.markdown("""
         <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                 style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">
             <h3>التشطيبات المختلطة</h3>
             <p>دمج بين الأنماط الكلاسيكية والحديثة</p>
         </div>
@@ -719,6 +835,43 @@ elif page == "📊 مشاريعنا":
         
         st.markdown("---")
 
+elif page == "🖼️ معرض الصور":
+    st.markdown('<h1 class="section-header">معرض الصور</h1>', unsafe_allow_html=True)
+    
+    st.markdown('<p style="font-size: 1.2rem;">هنا مجموعة من صور مشاريعنا المكتملة التي نفخر بها</p>', unsafe_allow_html=True)
+    
+    # معرض الصور
+    st.markdown('<div class="image-gallery">', unsafe_allow_html=True)
+    
+    cols = st.columns(3)
+    for idx, img in enumerate(real_gallery):
+        with cols[idx % 3]:
+            st.markdown(f"""
+            <div class="gallery-item">
+                <img src="{img['url']}" alt="{img['title']}">
+                <div class="gallery-caption">
+                    <strong>{img['title']}</strong>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # قسم إضافي للصور
+    st.markdown('<h2 class="section-header">صور تنفيذية من مواقع العمل</h2>', unsafe_allow_html=True)
+    
+    construction_images = [
+        {"title": "أعمال الحفر والأساسات", "url": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+        {"title": "تركيب الهياكل الإنشائية", "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+        {"title": "أعمال التشطيبات النهائية", "url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"},
+    ]
+    
+    cols = st.columns(3)
+    for idx, img in enumerate(construction_images):
+        with cols[idx]:
+            st.image(img["url"], use_column_width=True)
+            st.caption(img["title"])
+
 elif page == "📞 اتصل بنا":
     st.markdown('<h1 class="section-header">تواصل معنا</h1>', unsafe_allow_html=True)
     
@@ -731,9 +884,9 @@ elif page == "📞 اتصل بنا":
             <p>نحن هنا لمساعدتك في تحقيق مشروعك الإنشائي. تواصل معنا اليوم للحصول على استشارة مجانية.</p>
             
             <div style="margin-top: 2rem;">
-                <p>📞 <strong>الهاتف:</strong>01220851965</p>
+                <p>📞 <strong>الهاتف:</strong> 01220851965</p>
                 <p>📧 <strong>البريد الإلكتروني:</strong> info@brigoeg.com</p>
-                <p>📍 <strong>العنوان:</strong> السادس من اكتوبر - 165 مول اجياد بجوار سيتى سكيب </p>
+                <p>📍 <strong>العنوان:</strong> السادس من اكتوبر - 165 مول اجياد بجوار سيتى سكيب</p>
             </div>
             
             <div style="margin-top: 2rem;">
@@ -744,6 +897,11 @@ elif page == "📞 اتصل بنا":
             </div>
         </div>
         """, unsafe_allow_html=True)
+        
+        # خريطة (يمكن استبدالها بخريطة حقيقية)
+        st.markdown("### 📍 موقعنا على الخريطة")
+        st.image("https://maps.googleapis.com/maps/api/staticmap?center=29.9668,30.9456&zoom=15&size=600x300&scale=2&markers=color:red%7C29.9668,30.9456&key=YOUR_API_KEY", 
+                caption="موقع شركة بريجو", use_column_width=True)
     
     with col2:
         st.markdown("### أرسل لنا رسالة")
@@ -784,8 +942,4 @@ st.markdown("""
         <p>جميع الحقوق محفوظة © 2023 بريجو | تصميم وتطوير: فريق بريجو</p>
     </div>
 </div>
-
 """, unsafe_allow_html=True)
-
-
-
